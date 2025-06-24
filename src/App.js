@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import { Plus, User, BookOpen, CheckCircle, XCircle, LogOut, Eye, EyeOff } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-
 
 const StudentQuotaApp = () => {
   // Data siswa dengan password - KOSONG di awal
-  const [students, setStudents] = useState(() => {
-    const savedStudents = localStorage.getItem("students");
-    return savedStudents ? JSON.parse(savedStudents) : [];
-  });
-
+  const [students, setStudents] = useState([]);
 
   // Admin credentials
   const adminCredentials = { username: 'admin', password: 'admin123' };
@@ -28,9 +22,6 @@ const StudentQuotaApp = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [newStudent, setNewStudent] = useState({ name: '', password: '', totalQuota: '' });
   const [additionalQuota, setAdditionalQuota] = useState('');
-  useEffect(() => {
-    localStorage.setItem("students", JSON.stringify(students));
-  }, [students]);
 
   // Login handler
   const handleLogin = () => {
