@@ -3,25 +3,65 @@ import { Plus, User, BookOpen, CheckCircle, XCircle, LogOut, Eye, EyeOff } from 
 
 const StudentQuotaApp = () => {
   // Data siswa dengan password - KOSONG di awal
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState(() => {
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
+  const savedStudents = localStorage.getItem("students");
+  return savedStudents ? JSON.parse(savedStudents) : [];
+});
+
 
   // Admin credentials
   const adminCredentials = { username: 'admin', password: 'admin123' };
 
   // State management
   const [currentUser, setCurrentUser] = useState(null);
-  const [userRole, setUserRole] = useState(null); // 'admin' or 'student'
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
+  const [userRole, setUserRole] = useState(null);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [showLogin, setShowLogin] = useState(true);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [showPassword, setShowPassword] = useState(false);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [loginError, setLoginError] = useState('');
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
 
   // Modal states
   const [showAddStudent, setShowAddStudent] = useState(false);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [showAddQuota, setShowAddQuota] = useState(false);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [newStudent, setNewStudent] = useState({ name: '', password: '', totalQuota: '' });
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
   const [additionalQuota, setAdditionalQuota] = useState('');
+  useEffect(() => {
+    localStorage.setItem("students", JSON.stringify(students));
+  }, [students]);
 
   // Login handler
   const handleLogin = () => {
