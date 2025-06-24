@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Plus, User, BookOpen, CheckCircle, XCircle, LogOut, Eye, EyeOff } from 'lucide-react';
+import { db } from './firebase';
+import { collection, getDocs, addDoc, updateDoc, doc } from "firebase/firestore";
+
 
 const StudentQuotaApp = () => {
   // Data siswa dengan password - KOSONG di awal
@@ -22,6 +25,17 @@ const StudentQuotaApp = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [newStudent, setNewStudent] = useState({ name: '', password: '', totalQuota: '' });
   const [additionalQuota, setAdditionalQuota] = useState('');
+  useEffect(() => {
+  const fetchStudents = async () => {
+    const querySnapshot = await getDocs(collection(db, "students"));
+    const fetched = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    setStudents(fetched);
+  };
+  fetchStudents();
+}, []);
 
   // Login handler
   const handleLogin = () => {
@@ -61,29 +75,32 @@ const StudentQuotaApp = () => {
   };
 
   // Admin functions
-  const addStudent = () => {
+  const addStudent = async () => {
     if (newStudent.name && newStudent.password && newStudent.totalQuota) {
-      const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
       const newStudentData = {
-        id: newId,
         name: newStudent.name,
         password: newStudent.password,
         quotaUsed: 0,
         totalQuota: parseInt(newStudent.totalQuota)
       };
-      setStudents(prevStudents => [...prevStudents, newStudentData]);
-      setNewStudent({ name: '', password: '', totalQuota: '' });
-      setShowAddStudent(false);
+    const docRef = await addDoc(collection(db, "students"), newStudentData);
+    setStudents(prev => [...prev, { ...newStudentData, id: docRef.id }]);
+    setNewStudent({ name: '', password: '', totalQuota: '' });
+    setShowAddStudent(false);
     }
-  };
+  }; 
 
-  const addQuota = () => {
+  const addQuota = async () => {
     if (selectedStudent && additionalQuota && parseInt(additionalQuota) > 0) {
+      const newQuota = selectedStudent.totalQuota + parseInt(additionalQuota);
+      await updateDoc(doc(db, "students", selectedStudent.id), {
+        totalQuota: newQuota
+      });
       setStudents(prevStudents => 
-        prevStudents.map(student => 
-          student.id === selectedStudent.id 
-            ? { ...student, totalQuota: student.totalQuota + parseInt(additionalQuota) }
-            : student
+        prevStudents.map(s => 
+          s.id === selectedStudent.id 
+          ? { ...s, totalQuota: newQuota }
+          : s
         )
       );
       setAdditionalQuota('');
@@ -92,15 +109,24 @@ const StudentQuotaApp = () => {
     }
   };
 
-  const handleuseQuota = (studentId) => {
-    setStudents(prevStudents => 
-      prevStudents.map(student => 
-        student.id === studentId && student.quotaUsed < student.totalQuota
-          ? { ...student, quotaUsed: student.quotaUsed + 1 }
-          : student
-      )
-    );
+
+  const useQuota = async (studentId) => {
+    const student = students.find(s => s.id === studentId);
+    if (student && student.quotaUsed < student.totalQuota) {
+      const newUsed = student.quotaUsed + 1;
+      await updateDoc(doc(db, "students", studentId), {
+        quotaUsed: newUsed
+      });
+      setStudents(prevStudents => 
+        prevStudents.map(s => 
+          s.id === studentId 
+          ? { ...s, quotaUsed: newUsed }
+          : s
+        )
+      );
+    }
   };
+
 
   // Utility functions
   const getQuotaStatus = (student) => {
